@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모듈 1: 기본 트리 구조 구현</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>모듈 1: 기본 트리 구조 구현</h1>
+  
+  <div id="tree-container" style="width: 300px; border: 1px solid #ccc; padding: 10px;"></div>
+  
+  <script src="TreeNode.js"></script>
+  <script src="TreeView.js"></script>
+  <script src="sample-data.js"></script>
+  <script>
+    // 트리 초기화 및 렌더링
+    const container = document.getElementById('tree-container');
+    if (container) {
+      const treeView = new TreeView(container, sampleData);
+    }
+  </script>
+</body>
+</html>
