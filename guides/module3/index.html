@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모듈 3: 가상화(Virtualization) 트리 뷰</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .tree-container {
+      width: 350px;
+      flex-shrink: 0;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    
+    .controls {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 4px;
+    }
+    
+    .stats {
+      font-family: monospace;
+      margin-top: 20px;
+      padding: 10px;
+      background: #333;
+      color: #fff;
+      border-radius: 4px;
+      overflow: auto;
+    }
+    
+    button {
+      padding: 6px 12px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    
+    button:hover {
+      background: #3b78e7;
+    }
+    
+    label {
+      margin-right: 10px;
+    }
+    
+    input[type="number"] {
+      width: 60px;
+      padding: 4px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌳 가상화된 파일 트리 뷰</h1>
+  
+  <div class="controls">
+    <label>
+      항목 수:
+      <input type="number" id="nodeCount" value="5000" min="100" max="50000">
+    </label>
+    
+    <label>
+      깊이:
+      <input type="number" id="depth" value="5" min="1" max="10">
+    </label>
+    
+    <button id="generateData">데이터 생성</button>
+    <button id="expandAll">모두 펼치기</button>
+    <button id="collapseAll">모두 접기</button>
+  </div>
+  
+  <div class="container">
+    <div class="tree-container" id="treeContainer">
+      <!-- 트리 뷰가 여기에 렌더링됩니다 -->
+    </div>
+    
+    <div class="stats" id="stats">
+      <!-- 성능 통계가 여기에 표시됩니다 -->
+    </div>
+  </div>
+  
+  <div class="loading-indicator" id="loading">생성 중...</div>
+  
+  <!-- 모듈 2 코드 (의존성) -->
+  <script src="../module2/EventEmitter.js"></script>
+  
+  <!-- 모듈 3 코드 -->
+  <script src="NodePool.js"></script>
+  <script src="ScrollOptimizations.js"></script>
+  <script src="LargeDataGenerator.js"></script>
+  <script src="VirtualTreeView.js"></script>
+  
+  <script>
+    // DOM 요소
+    const treeContainer = document.getElementById('treeContainer');
+    const statsEl = document.getElementById('stats');
+    const loadingEl = document.getElementById('loading');
+    const nodeCountInput = document.getElementById('nodeCount');
+    const depthInput = document.getElementById('depth');
+    const generateBtn = document.getElementById('generateData');
+    const expandAllBtn = document.getElementById('expandAll');
+    const collapseAllBtn = document.getElementById('collapseAll');
+    
+    // 가상 트리 뷰 인스턴스
+    let virtualTreeView = null;
+    
+    // 성능 측정 유틸리티
+    const perf = {
+      start(label) {
+        if (!this.timers) this.timers = {};
+        this.timers[label] = performance.now();
+      },
+      
+      end(label) {
+        if (!this.timers || !this.timers[label]) return 0;
+        
+        const elapsed = performance.now() - this.timers[label];
+        delete this.timers[label];
+        return elapsed.toFixed(2);
+      },
+      
+      measure(label, fn) {
+        this.start(label);
+        const result = fn();
+        const time = this.end(label);
+        return { result, time };
+      }
+    };
+    
+    // 통계 업데이트
+    function updateStats(stats) {
+      statsEl.innerHTML = `
+        <h3>📊 성능 통계</h3>
+        <pre>${JSON.stringify(stats, null, 2)}</pre>
+      `;
+    }
+    
+    // 데이터 생성 및 트리 뷰 초기화
+    function initializeTree() {
+      // 로딩 인디케이터 표시
+      loadingEl.classList.add('visible');
+      
+      // 비동기로 데이터 생성 (UI 차단 방지)
+      setTimeout(() => {
+        try {
+          const nodeCount = parseInt(nodeCountInput.value, 10);
+          const depth = parseInt(depthInput.value, 10);
+          
+          // 파라미터 조정 - 트리 사이즈 예측
+          const filesPerFolder = Math.max(2, Math.min(20, Math.ceil(nodeCount / (Math.pow(5, depth) - 1) * 3)));
+          const foldersPerFolder = Math.max(1, Math.min(5, Math.ceil(Math.pow(nodeCount, 1/depth) / 2)));
+          
+          // 성능 측정 시작
+          perf.start('total');
+          
+          // 대용량 데이터 생성
+          const { result: treeData, time: genTime } = perf.measure('generate', () => 
+            LargeDataGenerator.generateLargeFileSystem(depth, filesPerFolder, foldersPerFolder, nodeCount)
+          );
+          
+          // 기존 트리 뷰 제거
+          if (virtualTreeView) {
+            treeContainer.innerHTML = '';
+          }
+          
+          // 새 트리 뷰 초기화
+          const { result: treeView, time: initTime } = perf.measure('initialize', () => 
+            new VirtualTreeView(treeContainer, treeData)
+          );
+          
+          virtualTreeView = treeView;
+          
+          // 총 시간 계산
+          const totalTime = perf.end('total');
+          
+          // 풀 상태 가져오기
+          const poolStats = virtualTreeView.nodePool.getStats();
+          
+          // 통계 업데이트
+          updateStats({
+            nodes: {
+              total: countNodes(treeData),
+              visible: virtualTreeView.visibleData.length,
+              rendered: poolStats.active
+            },
+            timing: {
+              generation: `${genTime} ms`,
+              initialization: `${initTime} ms`,
+              total: `${totalTime} ms`
+            },
+            memory: {
+              pool: poolStats
+            }
+          });
+          
+          // 트리 뷰에 이벤트 리스너 추가
+          virtualTreeView.on('node:expand-toggle', () => {
+            // 노드 풀 상태 업데이트
+            updateStats({
+              nodes: {
+                total: countNodes(treeData),
+                visible: virtualTreeView.visibleData.length,
+                rendered: virtualTreeView.nodePool.getStats().active
+              },
+              pool: virtualTreeView.nodePool.getStats()
+            });
+          });
+          
+        } catch (error) {
+          console.error('트리 초기화 오류:', error);
+          statsEl.innerHTML = `<div style="color: red">오류: ${error.message}</div>`;
+        } finally {
+          // 로딩 인디케이터 숨기기
+          loadingEl.classList.remove('visible');
+        }
+      }, 10);
+    }
+    
+    // 트리의 총 노드 수 계산
+    function countNodes(nodes) {
+      let count = 0;
+      
+      function traverse(nodeArray) {
+        count += nodeArray.length;
+        
+        for (const node of nodeArray) {
+          if (node.type === 'folder' && node.children) {
+            traverse(node.children);
+          }
+        }
+      }
+      
+      traverse(nodes);
+      return count;
+    }
+    
+    // 모든 폴더 펼치기/접기
+    function toggleAllFolders(expand) {
+      if (!virtualTreeView) return;
+      
+      virtualTreeView.flattenedData.forEach(node => {
+        if (node.type === 'folder') {
+          if (expand) {
+            virtualTreeView.expandedNodes.add(node.id);
+          } else {
+            virtualTreeView.expandedNodes.delete(node.id);
+          }
+        }
+      });
+      
+      // 보이는 노드 업데이트
+      virtualTreeView.updateVisibleData();
+      virtualTreeView.updateHeightContainer();
+      virtualTreeView.render();
+    }
+    
+    // 이벤트 리스너 등록
+    generateBtn.addEventListener('click', initializeTree);
+    expandAllBtn.addEventListener('click', () => toggleAllFolders(true));
+    collapseAllBtn.addEventListener('click', () => toggleAllFolders(false));
+    
+    // 초기 트리 생성
+    document.addEventListener('DOMContentLoaded', initializeTree);
+  </script>
+</body>
+</html>
