@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모듈 2: 이벤트 시스템 및 상태 관리</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>모듈 2: 이벤트 시스템 및 상태 관리</h1>
+  
+  <div id="tree-container" style="width: 300px; border: 1px solid #ccc; padding: 10px;"></div>
+  
+  <div id="instructions" style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9;">
+    <h3>사용 방법:</h3>
+    <ul>
+      <li><strong>폴더 클릭:</strong> 폴더 확장/축소</li>
+      <li><strong>Ctrl + 클릭:</strong> 다중 선택</li>
+      <li><strong>우클릭:</strong> 컨텍스트 메뉴 표시</li>
+      <li><strong>방향키 사용:</strong> 폴더 탐색</li>
+      <li><strong>Delete 키:</strong> 선택된 노드 삭제</li>
+    </ul>
+  </div>
+  
+  <script src="EventEmitter.js"></script>
+  <script src="TreeState.js"></script>
+  <script src="EnhancedTreeView.js"></script>
+  <script src="sample-data.js"></script>
+  <script>
+    // 사용 예시
+    const container = document.getElementById('tree-container');
+    if (container) {
+      // 트리 상태 초기화
+      const treeState = new TreeState(sampleData);
+      
+      // 'src' 폴더 초기 확장
+      treeState.expandedNodes.add('1');
+      
+      // 트리 뷰 생성 및 렌더링
+      const treeView = new EnhancedTreeView(container, treeState);
+    }
+  </script>
+</body>
+</html>
