@@ -1,0 +1,233 @@
+/* 모듈 4: 고급 사용자 상호작용을 위한 스타일 */
+
+/* 트리 컨테이너 기본 스타일 */
+.enhanced-virtual-tree {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  user-select: none;
+  outline: none;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+/* 트리 노드 스타일 */
+.tree-node {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  position: absolute;
+  width: calc(100% - 8px);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 노드 호버 효과 */
+.tree-node:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 선택된 노드 스타일 */
+.tree-node.selected {
+  background-color: #e0e7ff;
+  color: #000;
+}
+
+/* 포커스된 노드 스타일 */
+.tree-node.focused {
+  outline: 2px solid #007fd4;
+  outline-offset: -2px;
+}
+
+/* 키보드 포커스 시 특별 스타일 */
+.tree-node.focus-visible {
+  outline: 2px solid #007fd4;
+  outline-offset: -2px;
+  background-color: rgba(0, 127, 212, 0.1);
+}
+
+/* 노드 확장/축소 아이콘 */
+.expander {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 확장/축소 아이콘 플레이스홀더 (파일용) */
+.expander-placeholder {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* 확장/축소 화살표 스타일 */
+.expander.collapsed {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M6 4l4 4-4 4"/></svg>');
+}
+
+.expander.expanded {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M4 6l4 4 4-4"/></svg>');
+}
+
+/* 노드 아이콘 스타일 */
+.icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+/* 파일/폴더 아이콘 */
+.file-icon {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M10 0H2C1.46957 0 0.960859 0.210714 0.585786 0.585786C0.210714 0.960859 0 1.46957 0 2V14C0 14.5304 0.210714 15.0391 0.585786 15.4142C0.960859 15.7893 1.46957 16 2 16H14C14.5304 16 15.0391 15.7893 15.4142 15.4142C15.7893 15.0391 16 14.5304 16 14V6L10 0Z" fill-opacity="0.6"/></svg>');
+}
+
+.folder-icon {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M1.5 1H6.5L8 2.5H14.5C14.7761 2.5 15 2.72386 15 3V13.5C15 13.7761 14.7761 14 14.5 14H1.5C1.22386 14 1 13.7761 1 13.5V1.5C1 1.22386 1.22386 1 1.5 1Z" fill="rgb(224, 168, 0)"/></svg>');
+}
+
+.folder-open-icon {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M1.5 1H6.5L8 2.5H14.5C14.7761 2.5 15 2.72386 15 3V5H8L6.5 6.5H1V13.5C1 13.7761 1.22386 14 1.5 14H14.5C14.7761 14 15 13.7761 15 13.5V1.5C15 1.22386 14.7761 1 14.5 1H1.5Z" fill="rgb(224, 168, 0)"/></svg>');
+}
+
+/* 노드 라벨 스타일 */
+.node-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+/* 드래그 앤 드롭 스타일 */
+.tree-node.dragging {
+  opacity: 0.5;
+  background-color: #e0e0e0;
+}
+
+.tree-node.drag-over {
+  background-color: rgba(0, 127, 212, 0.2);
+  position: relative;
+}
+
+/* 드롭 표시기 */
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #007fd4;
+  pointer-events: none;
+}
+
+.drop-indicator.top {
+  top: 0;
+}
+
+.drop-indicator.bottom {
+  bottom: 0;
+}
+
+.drop-indicator.inside {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  background-color: rgba(0, 127, 212, 0.2);
+  border: 2px dashed #007fd4;
+}
+
+/* 접근성을 위한 스크린 리더 전용 클래스 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* 키보드 내비게이션 중에 스크롤 처리 */
+.tree-node:focus {
+  outline: none;
+}
+
+/* 부모-자식 관계를 나타내는 들여쓰기 선 */
+.tree-node::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #ddd;
+  z-index: -1;
+}
+
+.tree-node:last-child::before {
+  height: 50%;
+}
+
+/* 드래그 앤 드롭 중 마우스 커서 스타일 */
+.tree-node.can-drop {
+  cursor: copy;
+}
+
+.tree-node.no-drop {
+  cursor: not-allowed;
+}
+
+/* 드래그 중 트리 스크롤 영역 */
+.tree-scroll-zone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 30px;
+  pointer-events: none;
+}
+
+.tree-scroll-zone.top {
+  top: 0;
+}
+
+.tree-scroll-zone.bottom {
+  bottom: 0;
+}
+
+/* 다중 선택 스타일 */
+.tree-node.multi-selected {
+  background-color: rgba(0, 127, 212, 0.1);
+}
+
+/* 키보드 내비게이션 힌트 */
+.keyboard-hints {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid #ddd;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #666;
+  display: none;
+}
+
+.enhanced-virtual-tree:focus .keyboard-hints {
+  display: block;
+}
