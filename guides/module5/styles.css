@@ -1,0 +1,472 @@
+/* 모듈 5: 검색 및 필터링을 위한 스타일 */
+
+/* 이전 모듈 스타일 가져오기 */
+@import url('../module4/styles.css');
+
+/* 메인 컨테이너 레이아웃 */
+.searchable-tree-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 검색 UI 컨테이너 */
+.search-ui-wrapper {
+  flex-shrink: 0;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 트리 뷰 컨테이너 */
+.tree-view-wrapper {
+  flex-grow: 1;
+  overflow: auto;
+  position: relative;
+}
+
+/* 검색 UI 컨테이너 */
+.search-ui-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 검색 입력 컨테이너 */
+.search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* 검색 입력 필드 */
+.search-input {
+  flex-grow: 1;
+  padding: 6px 30px 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #007fd4;
+  box-shadow: 0 0 0 2px rgba(0, 127, 212, 0.2);
+}
+
+/* 검색 및 지우기 버튼 */
+.search-button,
+.clear-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.clear-button {
+  right: 32px;
+}
+
+.search-button:hover,
+.clear-button:hover {
+  color: #000;
+}
+
+/* 검색 옵션 컨테이너 */
+.search-options-container {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+
+/* 옵션 항목 */
+.search-option-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 체크박스 스타일 */
+.search-option-checkbox {
+  margin: 0;
+}
+
+/* 옵션 라벨 */
+.search-option-label {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 필터 컨테이너 */
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 필터 토글 버튼 */
+.filter-toggle-button {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.filter-toggle-button:hover,
+.filter-toggle-button.active {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+/* 필터 셀렉트 박스 */
+.file-type-filter,
+.extension-filter {
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+}
+
+/* 결과 내비게이션 */
+.result-nav-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* 결과 카운터 */
+.result-counter {
+  margin-right: auto;
+  color: #666;
+}
+
+/* 내비게이션 버튼 */
+.nav-button {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.nav-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 검색 결과 하이라이팅 */
+.highlight {
+  background-color: rgba(255, 213, 0, 0.5);
+  font-weight: 500;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* 검색 결과 스타일 */
+.tree-node.search-result {
+  background-color: rgba(204, 230, 255, 0.3);
+}
+
+/* 현재 포커스된 검색 결과 */
+.tree-node.search-result-focused {
+  background-color: rgba(0, 127, 212, 0.15);
+  border-left: 3px solid #007fd4;
+}
+
+/* 검색어 없이 필터링된 항목 */
+.tree-node.filtered {
+  background-color: rgba(235, 235, 235, 0.5);
+}
+
+/* 매칭된 노드의 부모 폴더 */
+.tree-node.parent-of-match {
+  font-weight: bold;
+}
+
+/* 정규식 오류 표시 */
+.search-input.regex-error {
+  border-color: #e51400;
+  background-color: rgba(229, 20, 0, 0.05);
+}
+
+.regex-error-message {
+  color: #e51400;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* 검색 단축키 힌트 */
+.search-shortcuts {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+  display: none;
+}
+
+.search-input:focus ~ .search-shortcuts {
+  display: block;
+}
+
+/* 검색 결과 없음 메시지 */
+.no-results-message {
+  color: #666;
+  font-style: italic;
+}
+
+/* 대화형 검색 필터 UI */
+.interactive-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  background-color: #e0e7ff;
+  border-radius: 4px;
+  padding: 2px 8px 2px 6px;
+  font-size: 12px;
+  color: #333;
+}
+
+.filter-tag-remove {
+  margin-left: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.filter-tag-remove:hover {
+  color: #e51400;
+}
+
+/* 검색 기록 */
+.search-history {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
+.search-input:focus ~ .search-history {
+  display: block;
+}
+
+.history-item {
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-item:hover {
+  background-color: #f0f0f0;
+}
+
+.history-text {
+  flex-grow: 1;
+}
+
+.history-remove {
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.history-remove:hover {
+  color: #e51400;
+}
+
+/* 검색 로딩 상태 */
+.search-loading {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 127, 212, 0.2);
+  border-left-color: #007fd4;
+  border-radius: 50%;
+  animation: search-spinner 1s linear infinite;
+  display: none;
+}
+
+@keyframes search-spinner {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* 필터 활성화 상태 표시 */
+.filter-toggle-button.has-active-filters {
+  background-color: rgba(0, 127, 212, 0.1);
+  border-color: #007fd4;
+  color: #007fd4;
+}
+
+/* 확장자 색상 코드 */
+.ext-js { color: #f1e05a; }
+.ext-ts { color: #2b7489; }
+.ext-html { color: #e34c26; }
+.ext-css { color: #563d7c; }
+.ext-py { color: #3572A5; }
+.ext-java { color: #b07219; }
+.ext-php { color: #4F5D95; }
+.ext-md { color: #083fa1; }
+.ext-json { color: #292929; }
+.ext-txt { color: #333333; }
+
+/* 확장자 색상 표시 */
+.tree-node[data-type="file"] .node-label::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background-color: currentColor;
+}
+
+/* 패스워드 필드로 사용 시 검색 입력란 스타일 */
+.search-input[type="password"] {
+  font-family: 'password', monospace;
+  letter-spacing: 0.1em;
+}
+
+/* 퍼지 검색 결과 표시 */
+.fuzzy-match {
+  color: #007fd4;
+  font-weight: 500;
+}
+
+/* 툴팁 스타일 */
+.search-tooltip {
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  max-width: 250px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-tooltip.visible {
+  opacity: 1;
+}
+
+/* 반응형 디자인 - 작은 화면 */
+@media (max-width: 768px) {
+  .search-options-container {
+    flex-wrap: wrap;
+  }
+  
+  .search-input {
+    font-size: 16px; /* 모바일 디바이스에서 확대 방지 */
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .search-ui-wrapper {
+    background-color: #252526;
+    border-color: #444;
+  }
+  
+  .search-input {
+    background-color: #3c3c3c;
+    border-color: #555;
+    color: #e0e0e0;
+  }
+  
+  .search-button,
+  .clear-button,
+  .filter-toggle-button,
+  .nav-button {
+    color: #bbb;
+  }
+  
+  .search-options-container,
+  .result-counter {
+    color: #bbb;
+  }
+  
+  .highlight {
+    background-color: rgba(255, 213, 0, 0.3);
+  }
+  
+  .tree-node.search-result {
+    background-color: rgba(0, 127, 212, 0.15);
+  }
+  
+  .tree-node.search-result-focused {
+    background-color: rgba(0, 127, 212, 0.25);
+  }
+  
+  .filter-tag {
+    background-color: #444;
+    color: #e0e0e0;
+  }
+  
+  .search-history {
+    background-color: #252526;
+    border-color: #444;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .history-item:hover {
+    background-color: #3c3c3c;
+  }
+  
+  .search-tooltip {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+}
