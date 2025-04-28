@@ -1,0 +1,148 @@
+/* 
+ * 모듈 3: 가상화 트리 뷰 스타일
+ */
+
+/* 컨테이너 스타일 */
+.virtual-tree-container {
+  width: 100%;
+  height: 400px; /* 기본 높이 */
+  border: 1px solid #ddd;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
+}
+
+/* 항목 스타일 */
+.tree-node {
+  box-sizing: border-box;
+  width: 100%;
+  cursor: default;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 노드 내용 스타일 */
+.node-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+}
+
+.node-content:hover {
+  background-color: #f0f0f0;
+}
+
+.node-content.selected {
+  background-color: #e0e9ff;
+  font-weight: bold;
+}
+
+/* 아이콘 스타일 */
+.node-icon {
+  margin-right: 5px;
+  width: 16px;
+  text-align: center;
+}
+
+.folder-icon {
+  color: #f8d775;
+}
+
+.file-icon {
+  color: #80b0ff;
+}
+
+/* 파일 타입별 아이콘 색상 */
+.file-icon.js {
+  color: #f7df1e; /* JavaScript */
+}
+
+.file-icon.css {
+  color: #264de4; /* CSS */
+}
+
+.file-icon.html {
+  color: #e34c26; /* HTML */
+}
+
+.file-icon.json {
+  color: #5b8db9; /* JSON */
+}
+
+.file-icon.md {
+  color: #b6b6b6; /* Markdown */
+}
+
+.file-icon.ts {
+  color: #3178c6; /* TypeScript */
+}
+
+/* 노드 라벨 스타일 */
+.node-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 퍼포먼스 최적화 (하드웨어 가속) */
+.virtual-tree-viewport {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 로딩 인디케이터 */
+.loading-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: none;
+}
+
+.loading-indicator.visible {
+  display: block;
+}
+
+/* 성능 통계 디스플레이 */
+.performance-stats {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px;
+  border-radius: 3px;
+  font-size: 11px;
+  z-index: 1000;
+  font-family: monospace;
+}
+
+/* 스크롤바 커스터마이징 */
+.virtual-tree-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.virtual-tree-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.virtual-tree-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.virtual-tree-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
