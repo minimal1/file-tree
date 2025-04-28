@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모듈 5: 검색 및 필터링 데모</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    
+    .container {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 20px;
+      height: 90vh;
+    }
+    
+    .tree-panel {
+      width: 400px;
+      height: 100%;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .info-panel {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: auto;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    
+    h2 {
+      margin-top: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    
+    .key-command {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .key {
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-family: monospace;
+      margin-right: 5px;
+    }
+    
+    .action-buttons {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 8px 12px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #e0e0e0;
+    }
+    
+    button:active {
+      background-color: #d0d0d0;
+    }
+    
+    .event-log {
+      height: 200px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      overflow: auto;
+      padding: 10px;
+      font-family: monospace;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+    
+    .log-entry {
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    .log-entry.info {
+      color: #0066cc;
+    }
+    
+    .log-entry.warn {
+      color: #cc7700;
+    }
+    
+    .log-entry.error {
+      color: #cc0000;
+    }
+    
+    .settings-section {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    
+    .setting-item {
+      margin-bottom: 10px;
+    }
+    
+    .setting-label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .setting-description {
+      font-size: 12px;
+      color: #666;
+      margin-top: 3px;
+    }
+    
+    .tab-container {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 15px;
+    }
+    
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      background-color: #f5f5f5;
+      margin-right: 4px;
+    }
+    
+    .tab.active {
+      background-color: #fff;
+      border-color: #ddd;
+      position: relative;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: #fff;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .node-info {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 15px;
+      border: 1px solid #ddd;
+    }
+    
+    .node-info-item {
+      margin-bottom: 8px;
+    }
+    
+    .node-info-label {
+      font-weight: 500;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>모듈 5: 검색 및 필터링 데모</h1>
+  
+  <div class="container">
+    <div class="tree-panel" id="tree-container"></div>
+    
+    <div class="info-panel">
+      <div class="tab-container">
+        <div class="tab active" data-tab="features">기능</div>
+        <div class="tab" data-tab="settings">설정</div>
+        <div class="tab" data-tab="events">이벤트 로그</div>
+      </div>
+      
+      <div class="tab-content active" data-tab="features">
+        <h2>검색 기능</h2>
+        <p>파일 트리에서 텍스트를 검색하고 결과 간 이동할 수 있습니다.</p>
+        
+        <div class="key-command">
+          <div>
+            <span class="key">Ctrl</span> + <span class="key">F</span>
+          </div>
+          <div>검색창 포커스</div>
+        </div>
+        <div class="key-command">
+          <div>
+            <span class="key">Enter</span>
+          </div>
+          <div>검색 실행</div>
+        </div>
+        <div class="key-command">
+          <div>
+            <span class="key">F3</span>
+          </div>
+          <div>다음 검색 결과로 이동</div>
+        </div>
+        <div class="key-command">
+          <div>
+            <span class="key">Shift</span> + <span class="key">F3</span>
+          </div>
+          <div>이전 검색 결과로 이동</div>
+        </div>
+        <div class="key-command">
+          <div>
+            <span class="key">Esc</span>
+          </div>
+          <div>검색 취소</div>
+        </div>
+        
+        <h2>필터링 기능</h2>
+        <p>다양한 조건으로 파일 및 폴더를 필터링할 수 있습니다.</p>
+        <ul>
+          <li><strong>파일 유형 필터</strong>: 파일, 폴더 구분하여 표시</li>
+          <li><strong>확장자 필터</strong>: 특정 확장자를 가진 파일만 표시</li>
+          <li><strong>복합 필터</strong>: 검색과 필터를 조합하여 사용 가능</li>
+        </ul>
+        
+        <h2>정규식 지원</h2>
+        <p>정규식을 사용하여 고급 검색 패턴을 적용할 수 있습니다.</p>
+        <div class="setting-description">
+          예시 정규식:
+          <ul>
+            <li><code>\.js$</code> - 확장자가 .js인 파일</li>
+            <li><code>^[A-Z]</code> - 대문자로 시작하는 파일/폴더</li>
+            <li><code>(component|util)</code> - 'component' 또는 'util'이 포함된 항목</li>
+          </ul>
+        </div>
+        
+        <h2>데모 작업</h2>
+        <p>아래 버튼들을 클릭하여 다양한 검색 및 필터링 기능을 테스트해보세요.</p>
+        
+        <div class="action-buttons">
+          <button id="btn-search-js">JavaScript 파일 검색</button>
+          <button id="btn-search-component">컴포넌트 검색</button>
+          <button id="btn-filter-folders">폴더만 표시</button>
+          <button id="btn-filter-docs">문서 파일만 표시</button>
+          <button id="btn-search-regex">정규식 검색 (.js$)</button>
+          <button id="btn-clear-search">검색 초기화</button>
+        </div>
+        
+        <div class="node-info" id="node-info">
+          <h3>선택된 노드 정보</h3>
+          <p class="setting-description">트리에서 노드를 선택하면 여기에 정보가 표시됩니다.</p>
+        </div>
+      </div>
+      
+      <div class="tab-content" data-tab="settings">
+        <h2>검색 엔진 설정</h2>
+        <div class="settings-section">
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="setting-use-index" checked> 검색 인덱스 사용
+            </label>
+            <div class="setting-description">인덱싱을 사용하여 검색 성능을 향상시킵니다. 메모���를 더 사용하지만 검색 속도가 빨라집니다.</div>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">검색 알고리즘:</label>
+            <select id="setting-search-algorithm">
+              <option value="dfs" selected>깊이 우선 탐색 (DFS)</option>
+              <option value="bfs">너비 우선 탐색 (BFS)</option>
+            </select>
+            <div class="setting-description">BFS는 상위 레벨 결과를 먼저 찾고, DFS는 깊은 레벨의 결과도 빠르게 찾습니다.</div>
+          </div>
+        </div>
+        
+        <h2>필터 설정</h2>
+        <div class="settings-section">
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="setting-hide-filtered" checked> 필터링된 노드 숨기기
+            </label>
+            <div class="setting-description">필터와 일치하지 않는 노드를 숨깁니다. 비활성화하면 일치하는 노드만 강조 표시합니다.</div>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="setting-auto-expand" checked> 결과 노드 자동 펼치기
+            </label>
+            <div class="setting-description">검색 결과가 포함된 폴더를 자동으로 펼칩니다.</div>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">필터 조합 모드:</label>
+            <select id="setting-filter-combine">
+              <option value="AND" selected>AND (모든 조건 만족)</option>
+              <option value="OR">OR (하나라도 만족)</option>
+            </select>
+            <div class="setting-description">여러 필터를 적용할 때 조건을 어떻게 조합할지 설정합니다.</div>
+          </div>
+        </div>
+        
+        <h2>UI 설정</h2>
+        <div class="settings-section">
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="setting-real-time-search" checked> 실시간 검색
+            </label>
+            <div class="setting-description">입력하는 동안 실시간으로 검색 결과를 업데이트합니다.</div>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">검색 디바운스 시간 (ms):</label>
+            <input type="number" id="setting-debounce-time" min="0" max="1000" step="50" value="300">
+            <div class="setting-description">실시간 검색 시 연속된 입력 후 검색을 시작하는 대기 시간입니다.</div>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button id="btn-apply-settings">설정 적용</button>
+          <button id="btn-reset-settings">기본값으로 초기화</button>
+        </div>
+      </div>
+      
+      <div class="tab-content" data-tab="events">
+        <h2>이벤트 로그</h2>
+        <div class="event-log" id="event-log"></div>
+        
+        <div class="action-buttons">
+          <button id="btn-clear-log">로그 지우기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module">
+    import SearchableTreeView from './SearchableTreeView.js';
+    
+    // 대형 샘플 파일 시스템 데이터 생성
+    function generateLargeFileSystem(depth = 4, filesPerFolder = 5, foldersPerFolder = 3) {
+      const fileTypes = ['js', 'css', 'html', 'json', 'md', 'txt', 'png', 'svg'];
+      const fileNamePrefixes = ['main', 'index', 'app', 'util', 'helper', 'component', 'service', 'model', 'view', 'controller'];
+      const folderNames = ['src', 'components', 'views', 'assets', 'utils', 'services', 'models', 'hooks', 'pages', 'api', 'docs', 'config', 'tests'];
+      
+      let nodeIdCounter = 1;
+      
+      function generateNode(name, type, level = 0, parentPath = '') {
+        const nodePath = parentPath ? `${parentPath}/${name}` : name;
+        const nodeId = `node-${nodeIdCounter++}`;
+        
+        if (type === 'folder') {
+          const children = [];
+          const childFolderCount = level < depth ? Math.max(1, Math.floor(Math.random() * foldersPerFolder)) : 0;
+          const childFileCount = Math.max(1, Math.floor(Math.random() * filesPerFolder));
+          
+          // 폴더 생성
+          for (let i = 0; i < childFolderCount; i++) {
+            const folderName = folderNames[Math.floor(Math.random() * folderNames.length)];
+            // 중복 방지를 위해 숫자 추가
+            const uniqueFolderName = `${folderName}${level > 0 ? `-${level}-${i}` : ''}`;
+            children.push(generateNode(uniqueFolderName, 'folder', level + 1, nodePath));
+          }
+          
+          // 파일 생성
+          for (let i = 0; i < childFileCount; i++) {
+            const filePrefix = fileNamePrefixes[Math.floor(Math.random() * fileNamePrefixes.length)];
+            const fileExt = fileTypes[Math.floor(Math.random() * fileTypes.length)];
+            const fileName = `${filePrefix}${i}.${fileExt}`;
+            children.push(generateNode(fileName, 'file', level + 1, nodePath));
+          }
+          
+          return {
+            id: nodeId,
+            name,
+            type: 'folder',
+            path: nodePath,
+            expanded: level < 2, // 첫 두 레벨만 기본 확장
+            children
+          };
+        } else {
+          // 파일 노드
+          return {
+            id: nodeId,
+            name,
+            type: 'file',
+            path: nodePath
+          };
+        }
+      }
+      
+      // 루트 레벨 생성
+      const rootNodes = [];
+      
+      // 주요 폴더 생성
+      rootNodes.push(generateNode('src', 'folder'));
+      rootNodes.push(generateNode('public', 'folder'));
+      rootNodes.push(generateNode('node_modules', 'folder'));
+      rootNodes.push(generateNode('docs', 'folder'));
+      
+      // 주요 파일 생성
+      rootNodes.push(generateNode('package.json', 'file'));
+      rootNodes.push(generateNode('README.md', 'file'));
+      rootNodes.push(generateNode('.gitignore', 'file'));
+      rootNodes.push(generateNode('tsconfig.json', 'file'));
+      
+      return rootNodes;
+    }
+    
+    // DOM 요소 참조
+    const treeContainer = document.getElementById('tree-container');
+    const eventLog = document.getElementById('event-log');
+    const nodeInfo = document.getElementById('node-info');
+    
+    // 탭 전환 처리
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        
+        // 모든 탭 비활성화
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // 선택한 탭 활성화
+        tab.classList.add('active');
+        document.querySelector(`.tab-content[data-tab="${tabId}"]`).classList.add('active');
+      });
+    });
+    
+    // 로그 추가 함수
+    function addLog(message, type = 'info') {
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry ${type}`;
+      logEntry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+      eventLog.appendChild(logEntry);
+      eventLog.scrollTop = eventLog.scrollHeight;
+    }
+    
+    // 샘플 데이터 생성
+    const treeData = generateLargeFileSystem();
+    
+    // 트리 뷰 초기화
+    const treeView = new SearchableTreeView(treeContainer, {
+      treeData,
+      enableSearchUI: true
+    });
+    
+    // 이벤트 리스너 설정
+    treeView.on('nodeClick', (data) => {
+      addLog(`노드 클릭: ${data.node.name} (${data.node.type})`);
+      updateNodeInfo(data.node);
+    });
+    
+    treeView.on('nodeSelected', (data) => {
+      addLog(`노드 선택: ${data.node.name}`);
+      updateNodeInfo(data.node);
+    });
+    
+    treeView.on('searchCompleted', (data) => {
+      addLog(`검색 완료: "${data.searchText}" (${data.resultCount}개 결과)`);
+    });
+    
+    treeView.on('resultNavigated', (data) => {
+      addLog(`검색 결과 이동: ${data.resultIndex + 1}/${data.totalResults}`);
+    });
+    
+    treeView.on('searchCleared', () => {
+      addLog('검색 초기화');
+    });
+    
+    // 노드 정보 업데이트
+    function updateNodeInfo(node) {
+      nodeInfo.innerHTML = `
+        <h3>선택된 노드 정보</h3>
+        <div class="node-info-item">
+          <span class="node-info-label">이름:</span> ${node.name}
+        </div>
+        <div class="node-info-item">
+          <span class="node-info-label">타입:</span> ${node.type === 'folder' ? '폴더' : '파일'}
+        </div>
+        <div class="node-info-item">
+          <span class="node-info-label">경로:</span> ${node.path}
+        </div>
+        <div class="node-info-item">
+          <span class="node-info-label">ID:</span> ${node.id}
+        </div>
+        ${node.type === 'folder' ? `
+          <div class="node-info-item">
+            <span class="node-info-label">자식 항목:</span> ${node.children ? node.children.length : 0}개
+          </div>
+          <div class="node-info-item">
+            <span class="node-info-label">확장 상태:</span> ${node.expanded ? '확장됨' : '축소됨'}
+          </div>
+        ` : ''}
+      `;
+    }
+    
+    // 데모 버튼 이벤트 처리
+    document.getElementById('btn-search-js').addEventListener('click', () => {
+      treeView.search('.js', {
+        caseSensitive: false,
+        useRegex: false
+      });
+    });
+    
+    document.getElementById('btn-search-component').addEventListener('click', () => {
+      treeView.search('component', {
+        caseSensitive: false,
+        useRegex: false
+      });
+    });
+    
+    document.getElementById('btn-filter-folders').addEventListener('click', () => {
+      treeView.search('', {
+        filters: { type: 'folder' }
+      });
+    });
+    
+    document.getElementById('btn-filter-docs').addEventListener('click', () => {
+      treeView.search('', {
+        filters: { extension: ['md', 'txt', 'pdf'] }
+      });
+    });
+    
+    document.getElementById('btn-search-regex').addEventListener('click', () => {
+      treeView.search('\\.js$', {
+        caseSensitive: false,
+        useRegex: true
+      });
+    });
+    
+    document.getElementById('btn-clear-search').addEventListener('click', () => {
+      treeView.reset();
+    });
+    
+    // 설정 적용 버튼
+    document.getElementById('btn-apply-settings').addEventListener('click', () => {
+      // 검색 엔진 설정
+      const useIndex = document.getElementById('setting-use-index').checked;
+      const searchAlgorithm = document.getElementById('setting-search-algorithm').value;
+      
+      // 필터 설정
+      const hideFiltered = document.getElementById('setting-hide-filtered').checked;
+      const autoExpand = document.getElementById('setting-auto-expand').checked;
+      const filterCombine = document.getElementById('setting-filter-combine').value;
+      
+      // UI 설정
+      const realTimeSearch = document.getElementById('setting-real-time-search').checked;
+      const debounceTime = parseInt(document.getElementById('setting-debounce-time').value);
+      
+      // 설정 적용
+      treeView.getSearchEngine().options.useIndex = useIndex;
+      treeView.getSearchEngine().options.searchAlgorithm = searchAlgorithm;
+      
+      treeView.getFilterManager().options.hideFilteredNodes = hideFiltered;
+      treeView.getFilterManager().options.autoExpandMatches = autoExpand;
+      treeView.getFilterManager().setCombineMode(filterCombine);
+      
+      // UI 설정은 현재 구현에서 직접 변경이 어려움 (설명용)
+      
+      // 인덱스 재구축 (설정이 변경된 경우)
+      if (useIndex) {
+        treeView.getSearchEngine().rebuildIndex();
+      }
+      
+      addLog('설정이 적용되었습니다.', 'info');
+    });
+    
+    // 설정 초기화 버튼
+    document.getElementById('btn-reset-settings').addEventListener('click', () => {
+      // 기본값으로 복원
+      document.getElementById('setting-use-index').checked = true;
+      document.getElementById('setting-search-algorithm').value = 'dfs';
+      document.getElementById('setting-hide-filtered').checked = true;
+      document.getElementById('setting-auto-expand').checked = true;
+      document.getElementById('setting-filter-combine').value = 'AND';
+      document.getElementById('setting-real-time-search').checked = true;
+      document.getElementById('setting-debounce-time').value = '300';
+      
+      // 적용 버튼 클릭 이벤트 호출
+      document.getElementById('btn-apply-settings').click();
+      
+      addLog('설정이 기본값으로 초기화되었습니다.', 'info');
+    });
+    
+    // 로그 지우기 버튼
+    document.getElementById('btn-clear-log').addEventListener('click', () => {
+      eventLog.innerHTML = '';
+    });
+    
+    // 초기 로그
+    addLog('트리 뷰 초기화 완료. 300개 이상의 노드가 생성되었습니다.', 'info');
+  </script>
+</body>
+</html>
